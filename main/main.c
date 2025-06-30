@@ -6,8 +6,10 @@
 #include "driver/spi_master.h"
 #include "esp_log.h"
 
-#include "esp_psram.h"
-#include "esp_heap_caps.h"
+
+
+#include <esp_heap_caps.h>
+#include <esp_log.h>
 
 
 #define LCD_HOST    SPI2_HOST
@@ -195,12 +197,23 @@ void app_main(void) {
     // 测试显示 - 循环显示不同颜色
     while(1) {
 
-        size_t psram_size =  esp_psram_get_size();
-        if (psram_size > 0) {
-            ESP_LOGI("PSRAM", "PSRAM is enabled, size: %d bytes", psram_size);
-        } else {
-            ESP_LOGI("PSRAM", "No PSRAM detected");
-        }
+
+        // 打印所有内存区域
+        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        
+        // 打印DRAM信息
+        heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+        
+        // 打印SPIRAM信息
+        heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
+        
+        // 获取可用内存大小
+        size_t free_dram = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        size_t free_spiram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+        
+        ESP_LOGI("MEMORY", "Free DRAM: %zu bytes", free_dram);
+        ESP_LOGI("MEMORY", "Free SPIRAM: %zu bytes", free_spiram);
+
 
 
         // 红色
