@@ -1,6 +1,7 @@
 # Set target chip to ESP32-S3
 CONFIG_IDF_TARGET="esp32s3"
 
+
 # SPI DMA configuration
 CONFIG_SPI_MASTER_IN_IRAM=y
 CONFIG_SPI_MASTER_ISR_IN_IRAM=y
