@@ -8,6 +8,7 @@
 
 
 
+
 #include <esp_heap_caps.h>
 #include <esp_log.h>
 
@@ -152,11 +153,23 @@ void fill_screen(uint16_t color) {
     }
 }
 
+
+//打印内存信息
+void print_heap_info() {
+    ESP_LOGI("MEM", "MALLOC_CAP_8BIT: %d", heap_caps_get_free_size(MALLOC_CAP_8BIT));
+    vTaskDelay(pdMS_TO_TICKS(10));
+    ESP_LOGI("MEM", "MALLOC_CAP_32BIT: %d", heap_caps_get_free_size(MALLOC_CAP_32BIT));
+    vTaskDelay(pdMS_TO_TICKS(10));
+    ESP_LOGI("MEM", "MALLOC_CAP_INTERNAL: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+    vTaskDelay(pdMS_TO_TICKS(10));
+    ESP_LOGI("MEM", "MALLOC_CAP_EXEC: %d", heap_caps_get_free_size(MALLOC_CAP_EXEC));
+    vTaskDelay(pdMS_TO_TICKS(10));
+    ESP_LOGI("MEM", "MALLOC_CAP_SPIRAM: %d", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+    vTaskDelay(pdMS_TO_TICKS(10));
+}
+
 void app_main(void) {
 
-    ESP_LOGI("RAM", "PSRAM size = %d bytes", esp_psram_get_size());
-    ESP_LOGI("MEM", "Internal RAM : %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-    ESP_LOGI("MEM", "SPIRAM       : %d", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
 
     ESP_LOGI(TAG, "Initializing ST7789 LCD");
 
@@ -197,22 +210,28 @@ void app_main(void) {
     // 测试显示 - 循环显示不同颜色
     while(1) {
 
+        print_heap_info();
 
-        // 打印所有内存区域
-        heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
+        // // 打印所有内存区域
+        // heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
         
-        // 打印DRAM信息
-        heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+        // // 打印DRAM信息
+        // heap_caps_print_heap_info(MALLOC_CAP_8BIT);
         
-        // 打印SPIRAM信息
-        heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
+        // // 打印SPIRAM信息
+        // heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
         
-        // 获取可用内存大小
-        size_t free_dram = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-        size_t free_spiram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+        // // 获取可用内存大小
+        // size_t free_dram = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        // size_t free_spiram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
         
-        ESP_LOGI("MEMORY", "Free DRAM: %zu bytes", free_dram);
-        ESP_LOGI("MEMORY", "Free SPIRAM: %zu bytes", free_spiram);
+        // ESP_LOGI("MEMORY", "Free DRAM: %zu bytes", free_dram);
+        // vTaskDelay(pdMS_TO_TICKS(10));
+
+
+        // ESP_LOGI("MEMORY", "Free SPIRAM: %zu bytes", free_spiram);
+        // vTaskDelay(pdMS_TO_TICKS(10));
+        
 
 
 
@@ -220,18 +239,18 @@ void app_main(void) {
         fill_screen(0xF800);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        printf("此时系统时间：%d\n",my_clock);
+        //printf("此时系统时间：%d\n",my_clock);
         
         // 绿色
         fill_screen(0x07E0);
         vTaskDelay(pdMS_TO_TICKS(1000));
         
-        printf("此时系统时间：%d\n",my_clock);
+        //printf("此时系统时间：%d\n",my_clock);
         
         // 蓝色
         fill_screen(0x001F);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        printf("此时系统时间：%d\n",my_clock);
+        //printf("此时系统时间：%d\n",my_clock);
     }
 } 
