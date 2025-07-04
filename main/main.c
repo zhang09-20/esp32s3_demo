@@ -107,36 +107,17 @@ static void i2c_scan_devices(void)
     ESP_LOGI("I2C", "开始扫描I2C设备...");
     uint8_t devices_found = 0;
     
-    // 创建设备句柄配置
-    i2c_device_config_t dev_cfg = {
-        .scl_speed_hz = I2C_MASTER_FREQ_HZ,
-        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-    };
-    
     for (uint8_t i = 1; i < 128; i++) {
-        // 设置当前扫描的设备地址
-        dev_cfg.dev_addr = i;
-        
-        // 创建临时设备句柄
-        i2c_master_dev_handle_t device_handle;
-        esp_err_t ret = i2c_master_bus_add_device(bus_handle, &dev_cfg, &device_handle);
+        // 直接使用i2c_master_probe函数检测设备
+        esp_err_t ret = i2c_master_probe(bus_handle, i, I2C_TIMEOUT_MS);
         
         if (ret == ESP_OK) {
-            // 尝试与设备通信
-            uint8_t dummy_data = 0;
-            ret = i2c_master_transmit(device_handle, &dummy_data, 0, I2C_TIMEOUT_MS);
+            ESP_LOGI("I2C", "检测到设备: 0x%02x", i);
+            devices_found++;
             
-            // 删除临时设备句柄
-            i2c_master_bus_rm_device(device_handle);
-            
-            if (ret == ESP_OK) {
-                ESP_LOGI("I2C", "检测到设备: 0x%02x", i);
-                devices_found++;
-                
-                // 如果是ES8311地址，特别标记
-                if (i == AUDIO_CODEC_ES8311_ADDR) {
-                    ESP_LOGI("I2C", "找到ES8311编解码器! (地址: 0x%02x)", i);
-                }
+            // 如果是ES8311地址，特别标记
+            if (i == AUDIO_CODEC_ES8311_ADDR) {
+                ESP_LOGI("I2C", "找到ES8311编解码器! (地址: 0x%02x)", i);
             }
         }
         
@@ -307,6 +288,7 @@ void print_heap_info() {
 }
 
 // 释放I2C资源
+static void i2c_cleanup(void) __attribute__((unused));
 static void i2c_cleanup(void)
 {
     if (bus_handle != NULL) {
@@ -369,25 +351,6 @@ void app_main(void) {
 
         print_heap_info();
 
-        // // 打印所有内存区域
-        // heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
-        
-        // // 打印DRAM信息
-        // heap_caps_print_heap_info(MALLOC_CAP_8BIT);
-        
-        // // 打印SPIRAM信息
-        // heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
-        
-        // // 获取可用内存大小
-        // size_t free_dram = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-        // size_t free_spiram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
-        
-        // ESP_LOGI("MEMORY", "Free DRAM: %zu bytes", free_dram);
-        // vTaskDelay(pdMS_TO_TICKS(10));
-
-        // ESP_LOGI("MEMORY", "Free SPIRAM: %zu bytes", free_spiram);
-        // vTaskDelay(pdMS_TO_TICKS(10));
-        
         int free_psram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
         int total_psram = heap_caps_get_total_size(MALLOC_CAP_SPIRAM);
         ESP_LOGI(TAG, "Free spiram: %u Total spiram: %u", free_psram, total_psram);
@@ -397,18 +360,18 @@ void app_main(void) {
         fill_screen(0xF800);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        //printf("此时系统时间：%d\n",my_clock);
+        printf("此时系统时间：%d\n",my_clock);
         
         // 绿色
         fill_screen(0x07E0);
         vTaskDelay(pdMS_TO_TICKS(1000));
         
-        //printf("此时系统时间：%d\n",my_clock);
+        printf("此时系统时间：%d\n",my_clock);
         
         // 蓝色
         fill_screen(0x001F);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        //printf("此时系统时间：%d\n",my_clock);
+        printf("此时系统时间：%d\n",my_clock);
     }
 } 
